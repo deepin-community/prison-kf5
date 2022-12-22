@@ -1,0 +1,4 @@
+usr/lib/*/libKF5Prison.so.5
+usr/lib/*/libKF5Prison.so.5.*
+usr/share/qlogging-categories5/prison.categories
+usr/share/qlogging-categories5/prison.renamecategories

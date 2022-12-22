@@ -1,0 +1,12 @@
+/*
+    SPDX-FileCopyrightText: 2018 Volker Krause <vkrause@kde.org>
+
+    SPDX-License-Identifier: MIT
+*/
+
+#ifndef PRISON_CONFIG_H
+#define PRISON_CONFIG_H
+
+#cmakedefine HAVE_DMTX
+
+#endif

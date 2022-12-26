@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(KF_VERSION "5.86.0") # handled by release scripts
+set(KF_VERSION "5.90.0") # handled by release scripts
 project(prison VERSION ${KF_VERSION})
 
 # ECM setup
 include(FeatureSummary)
-find_package(ECM 5.86.0 NO_MODULE)
+find_package(ECM 5.90.0 NO_MODULE)
 set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
 feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" "${ECM_MODULE_PATH}")
@@ -32,12 +32,14 @@ option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, 
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
 set(REQUIRED_QT_VERSION 5.15.2)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG OPTIONAL_COMPONENTS Quick)
+find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui)
+find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} CONFIG OPTIONAL_COMPONENTS Quick)
 find_package(QRencode)
 set_package_properties(QRencode PROPERTIES TYPE REQUIRED)
 find_package(Dmtx)
 set_package_properties(Dmtx PROPERTIES TYPE RECOMMENDED)
+find_package(ZXing 1.2.0)
+set_package_properties(ZXing PROPERTIES TYPE RECOMMENDED)
 
 if (Qt5_POSITION_INDEPENDENT_CODE)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -51,7 +53,7 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX PRISON
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f02)
 add_subdirectory(src)
 if(BUILD_TESTING)
-    find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test Widgets)
+    find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test Widgets)
     add_subdirectory(autotests)
     add_subdirectory(tests)
 endif()
@@ -89,7 +91,7 @@ install(EXPORT KF5PrisonTargets
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/prison_version.h
-  DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}
+  DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}
   COMPONENT Devel
 )
 

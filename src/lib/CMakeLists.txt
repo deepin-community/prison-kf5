@@ -5,7 +5,7 @@ endif()
 if (TARGET ZXing::ZXing)
     set(HAVE_ZXING 1)
 endif()
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-prison.h.in ${CMAKE_CURRENT_BINARY_DIR}/config-prison.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-prison.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-prison.h)
 
 add_library(KF5Prison)
 add_library(KF5::Prison ALIAS KF5Prison)
@@ -64,7 +64,7 @@ ecm_generate_export_header(KF5Prison
     EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
 )
 
-target_include_directories(KF5Prison INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/prison/>")
+target_include_directories(KF5Prison INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/Prison>")
 
 target_link_libraries(KF5Prison
 PUBLIC
@@ -79,32 +79,38 @@ if(TARGET ZXing::ZXing)
     target_link_libraries(KF5Prison PRIVATE ZXing::ZXing)
 endif()
 
-install(TARGETS KF5Prison EXPORT KF5PrisonTargets ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5Prison EXPORT KF5PrisonTargets ${KF_INSTALL_TARGETS_DEFAULT_ARGS})
 
 ecm_generate_headers(Prison_CamelCase_HEADERS
     HEADER_NAMES
     AbstractBarcode
     Prison
-    PREFIX PRISON
     REQUIRED_HEADERS Prison_HEADERS
+    OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/Prison
 )
 
-# KF6: install to a path having both include visibility layer & namespace dir prefix:
-# CamelCase includes to ${KDE_INSTALL_INCLUDEDIR_KF}/Prison/Prison
-# normal headers to ${KDE_INSTALL_INCLUDEDIR_KF}/Prison/prison
-# The generated cmake config files currently points behind the namespace dir prefix, by
-# target_include_directories(KF5Prison INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/prison>")
-# which should though point to before the namespace dir prefix level.
-# Includes using <prison/*> only work currently due to the actual include base ${KDE_INSTALL_INCLUDEDIR_KF}
-# also being set, via KF5_INSTALL_TARGETS_DEFAULT_ARGS.
-install(FILES
-    ${Prison_CamelCase_HEADERS}
-    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/prison COMPONENT Devel)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/prison_export.h
+set(_all_headers
     ${Prison_HEADERS}
-    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/prison
+    ${Prison_CamelCase_HEADERS}
+    ${CMAKE_CURRENT_BINARY_DIR}/prison_export.h
+)
+
+# So that the headers are found at build time
+target_include_directories(KF5Prison PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")
+
+# To keep backwards compatibility with KF5, all headers are copied to <includedir>/KF5/Prison/prison,
+# for KF6 everything goes into <includedir>/KF6/Prison/Prison only
+if (QT_MAJOR_VERSION STREQUAL "5")
+    install(
+        FILES ${_all_headers}
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/Prison/prison
+        COMPONENT Devel
+    )
+endif()
+
+install(
+    FILES ${_all_headers}
+    DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/Prison/Prison
     COMPONENT Devel
 )
 
@@ -136,6 +142,6 @@ endif()
 
 # INCLUDE_INSTALL_DIR has to be without prison/ subdir
 # as the generated CamelCase headers have the prison/ path in the forward include
-ecm_generate_pri_file(BASE_NAME Prison LIB_NAME KF5Prison DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF})
+ecm_generate_pri_file(BASE_NAME Prison LIB_NAME KF5Prison DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF}/Prison)
 install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
 

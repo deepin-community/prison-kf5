@@ -7,7 +7,7 @@
 #ifndef PRISON_BARCODEQUICKITEM_H
 #define PRISON_BARCODEQUICKITEM_H
 
-#include <prison/prison.h>
+#include <Prison/Prison>
 
 #include <QColor>
 #include <QQuickPaintedItem>
@@ -68,7 +68,7 @@ public:
         OneDimension,
         TwoDimensions,
     };
-    Q_ENUM(Dimensions);
+    Q_ENUM(Dimensions)
     Dimensions dimensions() const;
 
     void paint(QPainter *painter) override;
